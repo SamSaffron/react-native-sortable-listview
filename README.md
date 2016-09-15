@@ -23,7 +23,7 @@ let {
 } = React;
 
 
-let data = { 
+let data = {
   hello: {text: 'world'},
   how: {text: 'are you'},
   test: {text: 123},
@@ -87,6 +87,7 @@ SortableListView passes through all the standard ListView properties to ListView
  - **`order`** _(Array)_  (optional) - Expects an array of keys to determine the current order of rows.
  - **`sortRowStyle`** _(Object)_ (optional) - Expects a `style` object, which is to be applied on the rows when they're being dragged.
  - **`disableSorting`** _(boolean) (optional) - When set to true, all sorting will be disabled, which will effectively make the SortableListView act like a normal ListView.
+- **`onSortingRow`** _(Function)_ - should return a function that is passed a single row object when a row is currently moved. `row` is all the info available about the row being moved.
 
 ---
 

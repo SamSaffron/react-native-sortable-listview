@@ -171,7 +171,7 @@ var SortableListView = React.createClass({
 
     return this.state;
   },
-  cancel: function() { 
+  cancel: function() {
     if (!this.moved) {
       this.setState({
         active: false,
@@ -259,6 +259,7 @@ var SortableListView = React.createClass({
   _rowRefs: {},
   handleRowActive: function(row) {
     if (this.props.disableSorting) return;
+    this.props.onSortingRow && this.props.onSortingRow(row)
     this.state.pan.setValue({x: 0, y: 0});
     LayoutAnimation.easeInEaseOut();
     this.moveY = row.layout.pageY;
