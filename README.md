@@ -89,6 +89,10 @@ SortableListView passes through all the standard ListView properties to ListView
  - **`disableSorting`** _(boolean) (optional) - When set to true, all sorting will be disabled, which will effectively make the SortableListView act like a normal ListView.
 - **`onSortingRow`** _(Function)_ - should return a function that is passed a single row object when a row is currently moved. `row` is all the info available about the row being moved.
 
+## methods
+
+- **`scrollTo(...args)`** - Scrolls to a given x, y offset, either immediately or with a smooth animation. See ScrollView's scrollTo method.
+
 ---
 
 ###Contributions welcome!

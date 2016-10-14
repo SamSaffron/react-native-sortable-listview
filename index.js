@@ -336,6 +336,9 @@ var SortableListView = React.createClass({
       />
       {this.renderActive()}
     </View>
+  },
+  scrollTo: function(...args) {
+    this.scrollResponder.scrollTo.apply(this.scrollResponder, args);
   }
 });
 
