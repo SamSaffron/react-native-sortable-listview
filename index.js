@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import TimerMixin from 'react-timer-mixin';
 import {
   ListView,
@@ -11,8 +12,10 @@ import {
 } from 'react-native';
 
 let HEIGHT = Dimensions.get('window').height;
-var Row = React.createClass({
+var Row = createReactClass({
+  displayName: 'Row',
   _data: {},
+
   shouldComponentUpdate: function(props) {
     if (props.hovering !== this.props.hovering) return true;
     if (props.active !== this.props.active) return true;
@@ -20,6 +23,7 @@ var Row = React.createClass({
     if (props.rowHasChanged) return props.rowHasChanged(props.rowData.data, this._data);
     return false;
   },
+
   handleLongPress: function(e) {
     this.refs.view.measure((frameX, frameY, frameWidth, frameHeight, pageX, pageY) => {
       let layout = {frameX, frameY, frameWidth, frameHeight, pageX, pageY};
@@ -30,15 +34,18 @@ var Row = React.createClass({
       });
     });
   },
+
   componentDidUpdate: function(props) {
     //Take a shallow copy of the active data. So we can do manual comparisons of rows if needed.
     if (props.rowHasChanged) {
       this._data = Object.assign({}, props.rowData.data);
     }
   },
+
   measure: function() {
     return this.refs.view.measure.apply(this, Array.from(arguments));
   },
+
   render: function() {
     let layout = this.props.list.layoutMap[this.props.rowData.index];
     let activeData = this.props.list.state.active;
@@ -50,15 +57,16 @@ var Row = React.createClass({
           {this.props.hovering && shouldDisplayHovering ? this.props.activeDivider : null}
           {this.props.active && this.props.list.state.hovering && this.props._legacySupport ? null : Row}
         </View>
-  }
+  },
 });
 
-var SortRow = React.createClass({
-  getInitialState: function() {
-    let layout = this.props.list.state.active.layout;
-    let wrapperLayout = this.props.list.wrapperLayout;
+class SortRow extends React.Component {
+  constructor(props) {
+    super(props);
+    let layout = props.list.state.active.layout;
+    let wrapperLayout = props.list.wrapperLayout;
 
-    return {
+    this.state = {
       style: {
         position: 'absolute',
         left: 0,
@@ -69,9 +77,10 @@ var SortRow = React.createClass({
         backgroundColor: 'transparent',
         marginTop: layout.pageY - wrapperLayout.pageY //Account for top bar spacing
       }
-    }
-  },
-  render: function() {
+    };
+  }
+
+  render() {
     let handlers = this.props.panResponder.panHandlers;
     return (
       <Animated.View ref="view" style={[this.state.style, this.props.sortRowStyle, this.props.list.state.pan.getLayout()]}>
@@ -79,10 +88,12 @@ var SortRow = React.createClass({
       </Animated.View>
     );
   }
-});
+}
 
-var SortableListView = React.createClass({
+var SortableListView = createReactClass({
+  displayName: 'SortableListView',
   mixins: [TimerMixin],
+
   getInitialState:function() {
 
     let currentPanValue = {x: 0, y: 0};
@@ -171,6 +182,7 @@ var SortableListView = React.createClass({
 
     return this.state;
   },
+
   cancel: function() {
     if (!this.moved) {
       this.setState({
@@ -179,6 +191,7 @@ var SortableListView = React.createClass({
       });
     }
   },
+
   componentDidMount: function() {
     setTimeout(()=>{
       this.scrollResponder = this.refs.list.getScrollResponder();
@@ -190,8 +203,12 @@ var SortableListView = React.createClass({
     }, 1);
 
   },
+
   scrollValue: 0,
-  scrollContainerHeight: HEIGHT * 1.2, //Gets calculated on scroll, but if you havent scrolled needs an initial value
+
+  //Gets calculated on scroll, but if you havent scrolled needs an initial value
+  scrollContainerHeight: HEIGHT * 1.2,
+
   scrollAnimation: function() {
     if (this.isMounted() && this.state.active) {
       if (this.moveY == undefined) return this.requestAnimationFrame(this.scrollAnimation);
@@ -225,6 +242,7 @@ var SortableListView = React.createClass({
       this.requestAnimationFrame(this.scrollAnimation);
     }
   },
+
   checkTargetElement() {
     let scrollValue = this.scrollValue;
 
@@ -257,9 +275,11 @@ var SortableListView = React.createClass({
     }
 
   },
+
   firstRowY: undefined,
   layoutMap: {},
   _rowRefs: {},
+
   handleRowActive: function(row) {
     if (this.props.disableSorting) return;
     this.props.onSortingRow && this.props.onSortingRow(row)
@@ -272,11 +292,13 @@ var SortableListView = React.createClass({
     },  this.scrollAnimation);
 
   },
+
   renderActiveDivider: function() {
     let height = this.state.active ? this.state.active.layout.frameHeight : null
     if (this.props.renderActiveDivider) return this.props.renderActiveDivider(height);
     return <View style={{height: height}} />
   },
+
   renderRow: function(data, section, index, highlightfn, active) {
 
     let Component = active ? SortRow : Row;
@@ -299,29 +321,36 @@ var SortableListView = React.createClass({
       onRowLayout={layout => this._updateLayoutMap(index, layout.nativeEvent.layout)}
       />);
   },
+
   _updateLayoutMap(index, layout) {
       if (!this.firstRowY || layout.y < this.firstRowY) {
           this.firstRowY = layout.y;
       }
       this.layoutMap[index] = layout;
   },
+
   renderActive: function() {
     if (!this.state.active) return;
     let index = this.state.active.rowData.index;
     return this.renderRow(this.props.data[index], 's1', index, () => {}, {active: true, thumb: true});
   },
+
   componentWillMount: function() {
     this.setOrder(this.props);
   },
+
   componentWillReceiveProps: function(props) {
     this.setOrder(props);
   },
+
   setOrder: function(props) {
     this.order = props.order || Object.keys(props.data) || [];
   },
+
   getScrollResponder: function() {
     return this.scrollResponder;
   },
+
   render: function() {
     let dataSource = this.state.ds.cloneWithRows(this.props.data, this.props.order);
 
@@ -346,9 +375,10 @@ var SortableListView = React.createClass({
       {this.renderActive()}
     </View>
   },
+
   scrollTo: function(...args) {
     this.scrollResponder.scrollTo.apply(this.scrollResponder, args);
-  }
+  },
 });
 
 module.exports = SortableListView;
